@@ -8,15 +8,15 @@ public static class QueryableExtension
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         if (member == null) throw new ArgumentNullException(nameof(member));
-        
+
         values = values.Distinct()
                        .ToArray();
-        
+
         if (!values.Any()) return false;
 
         var p = member.Parameters.Single();
         var equals = values.Select(value => (Expression)Expression.Equal(member.Body, Expression.Constant(value, typeof(TValue))));
-        var body = equals.Aggregate(Expression.Or);
+        var body = equals.Aggregate(Expression.OrElse);
         var predicate = Expression.Lambda<Func<TSource, bool>>(body, p);
 
         return source.Count(predicate) == values.Length;
@@ -30,7 +30,7 @@ public static class QueryableExtension
 
         var p = member.Parameters.Single();
         var equals = values.Select(value => (Expression)Expression.Equal(member.Body, Expression.Constant(value, typeof(TValue))));
-        var body = equals.Aggregate(Expression.Or);
+        var body = equals.Aggregate(Expression.OrElse);
         var predicate = Expression.Lambda<Func<TSource, bool>>(body, p);
 
         return source.Where(predicate);
@@ -60,7 +60,7 @@ public static class QueryableExtension
         var p = member.Parameters.Single();
         var containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
         var equals = values.Select(value => (Expression)Expression.Call(member.Body, containsMethod, Expression.Constant(value, typeof(TValue))));
-        var body = equals.Aggregate(Expression.Or);
+        var body = equals.Aggregate(Expression.OrElse);
         var predicate = Expression.Lambda<Func<TSource, bool>>(body, p);
 
         return source.Where(predicate);
@@ -76,7 +76,7 @@ public static class QueryableExtension
         var p = member.Parameters.Single();
         var containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
         var equals = values.Select(value => (Expression)Expression.Not(Expression.Call(member.Body, containsMethod, Expression.Constant(value, typeof(TValue)))));
-        var body = equals.Aggregate(Expression.And);
+        var body = equals.Aggregate(Expression.AndAlso);
         var predicate = Expression.Lambda<Func<TSource, bool>>(body, p);
 
         return source.Where(predicate);

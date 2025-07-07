@@ -81,7 +81,7 @@ public static class EnumerableExtension
 
         var p = member.Parameters.Single();
         var equals = values.Select(value => (Expression)Expression.Equal(member.Body, Expression.Constant(value, typeof(TValue))));
-        var body = equals.Aggregate(Expression.Or);
+        var body = equals.Aggregate(Expression.OrElse);
 
         var predicate = Expression.Lambda<Func<TSource, bool>>(body, p)
                                   .Compile();
@@ -98,7 +98,7 @@ public static class EnumerableExtension
 
         var p = member.Parameters.Single();
         var equals = values.Select(value => (Expression)Expression.Equal(member.Body, Expression.Constant(value, typeof(TValue))));
-        var body = equals.Aggregate(Expression.Or);
+        var body = equals.Aggregate(Expression.OrElse);
 
         var predicate = Expression.Lambda<Func<TSource, bool>>(body, p)
                                   .Compile();
@@ -153,7 +153,7 @@ public static class EnumerableExtension
         var p = member.Parameters.Single();
         var containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
         var equals = values.Select(value => (Expression)Expression.Not(Expression.Call(member.Body, containsMethod, Expression.Constant(value, typeof(TValue)))));
-        var body = equals.Aggregate((accumulate, equal) => Expression.And(accumulate, equal));
+        var body = equals.Aggregate((accumulate, equal) => Expression.AndAlso(accumulate, equal));
 
         var predicate = Expression.Lambda<Func<TSource, bool>>(body, p)
                                   .Compile();
